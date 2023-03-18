@@ -1,1 +1,1 @@
-worker: bin/lesson1
+web: bin/lesson1
