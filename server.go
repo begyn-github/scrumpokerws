@@ -71,5 +71,5 @@ func main() {
 	fmt.Println("Hello World")
 	fmt.Println(os.Getenv("PORT"))
 	setupRoutes()
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
