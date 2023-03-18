@@ -60,7 +60,7 @@ func setupRoutes() {
 }
 
 // We'll need to define an Upgrader
-// this will require a Read and Write buffer size
+// this will require a Read and Write buffer sizes
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
