@@ -69,5 +69,5 @@ var upgrader = websocket.Upgrader{
 func main() {
 	fmt.Println("Hello World")
 	setupRoutes()
-	log.Fatal(http.ListenAndServe("80", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
