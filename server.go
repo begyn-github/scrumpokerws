@@ -74,7 +74,7 @@ var upgrader = websocket.Upgrader{
 func main() {
 	//port := os.Getenv("PORT")
 
-	port := "80"
+	port := "8080"
 	fmt.Println("Hello World")
 	fmt.Println(port)
 	setupRoutes()
