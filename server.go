@@ -12,6 +12,10 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Home Page")
 }
 
+func challenge(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "ccDjjFl80ofw71TxqR2KK5Iva-vB7diFWothQXXQYhw.RrcB1hbRA1D23gYXZu1iOPpRTFX-9ovExmpGXFhC9lw")
+}
+
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
@@ -57,6 +61,7 @@ func reader(conn *websocket.Conn) {
 func setupRoutes() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/ws", wsEndpoint)
+	http.HandleFunc("/.well-known/acme-challenge/ccDjjFl80ofw71TxqR2KK5Iva-vB7diFWothQXXQYhw", challenge)
 }
 
 // We'll need to define an Upgrader
@@ -69,7 +74,7 @@ var upgrader = websocket.Upgrader{
 func main() {
 	//port := os.Getenv("PORT")
 
-	port := "8080"
+	port := "80"
 	fmt.Println("Hello World")
 	fmt.Println(port)
 	setupRoutes()
