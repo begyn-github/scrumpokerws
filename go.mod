@@ -1,4 +1,4 @@
-module lesson1
+module scrumpokerws
 
 go 1.19
 

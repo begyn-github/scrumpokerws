@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"lesson1/statemachine"
 	"log"
 	"net/http"
 	"os"
+	"scrumpokerws/statemachine"
 	"strings"
 
 	"github.com/gorilla/websocket"
