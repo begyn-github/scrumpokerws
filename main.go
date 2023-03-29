@@ -2,19 +2,17 @@ package main
 
 import (
 	"fmt"
+	"lesson1/statemachine"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Home Page")
-}
-
-func challenge(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "ccDjjFl80ofw71TxqR2KK5Iva-vB7diFWothQXXQYhw.RrcB1hbRA1D23gYXZu1iOPpRTFX-9ovExmpGXFhC9lw")
+	fmt.Fprintf(w, "WebSocket: /ws")
 }
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -28,41 +26,56 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Client Connected")
-	err = ws.WriteMessage(1, []byte("Hi Client!"))
-	if err != nil {
-		log.Println(err)
+
+	root := statemachine.GetRoot()
+	var userState statemachine.UserState = statemachine.UserState{User: "", ActualState: &root}
+
+	if ws != nil {
+		err = ws.WriteMessage(1, []byte(strings.Join(userState.ActualState.GetMenu(), "\n")))
+		if err != nil {
+			log.Println(err)
+		}
 	}
+
 	// listen indefinitely for new messages coming
 	// through on our WebSocket connection
-	reader(ws)
+	reader(ws, userState)
 }
 
 // define a reader which will listen for
 // new messages being sent to our WebSocket
 // endpoint
-func reader(conn *websocket.Conn) {
-	for {
+func reader(conn *websocket.Conn, us statemachine.UserState) {
+	toExit := false
+
+	for !toExit {
 		// read in a message
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		// print out that message for clarity
-		fmt.Println(string(p))
 
-		if err := conn.WriteMessage(messageType, p); err != nil {
+		// print out that message for clarity
+		fmt.Println("From Client: " + string(p))
+
+		state, err2 := us.ActualState.GoTo(string(p))
+
+		if err2 == nil {
+			us.ActualState = &state
+			fmt.Println(strings.Join(state.GetMenu(), "\n"))
+		}
+
+		if err := conn.WriteMessage(messageType, []byte(strings.Join(state.GetMenu(), "\n"))); err != nil {
 			log.Println(err)
 			return
 		}
-
 	}
 }
 
 func setupRoutes() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/ws", wsEndpoint)
-	http.HandleFunc("/.well-known/acme-challenge/ccDjjFl80ofw71TxqR2KK5Iva-vB7diFWothQXXQYhw", challenge)
 }
 
 // We'll need to define an Upgrader
