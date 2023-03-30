@@ -18,8 +18,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	// upgrade this connection to a WebSocket
-	// connection
+	// transforma conexao em ws
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -27,9 +26,12 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Client Connected")
 
+	// Recebe o root da state machine
+	// e define o estado inicial do usuário
 	root := statemachine.GetRoot()
 	var userState statemachine.UserState = statemachine.UserState{User: "", ActualState: &root}
 
+	// Escreve o menu para o usuário, logo depois de conectado
 	if ws != nil {
 		err = ws.WriteMessage(1, []byte(strings.Join(userState.ActualState.GetMenu(), "\n")))
 		if err != nil {
@@ -37,35 +39,35 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// listen indefinitely for new messages coming
-	// through on our WebSocket connection
+	// escuta indefinidamente por novas mensagens pela conexao
+	// e passa o state do usuario conectado
 	reader(ws, userState)
 }
 
-// define a reader which will listen for
-// new messages being sent to our WebSocket
-// endpoint
+// leitor de words para avanco na state machine
 func reader(conn *websocket.Conn, us statemachine.UserState) {
 	toExit := false
 
 	for !toExit {
-		// read in a message
+		// le entradas do usuário
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		// print out that message for clarity
+		// imprime em tela mensagem do usuário
 		fmt.Println("From Client: " + string(p))
 
+		// tenta avançar para o próximo estado
+		// de acordo com escolha no menu
 		state, err2 := us.ActualState.GoTo(string(p))
-
 		if err2 == nil {
 			us.ActualState = &state
 			fmt.Println(strings.Join(state.GetMenu(), "\n"))
 		}
 
+		// envia o menu do novo estado alcançado ao usuário
 		if err := conn.WriteMessage(messageType, []byte(strings.Join(state.GetMenu(), "\n"))); err != nil {
 			log.Println(err)
 			return
@@ -73,13 +75,14 @@ func reader(conn *websocket.Conn, us statemachine.UserState) {
 	}
 }
 
+// Cadastra as rotas no servidor
 func setupRoutes() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/ws", wsEndpoint)
 }
 
-// We'll need to define an Upgrader
-// this will require a Read and Write buffer sizes
+// Necessitamos de Read and Write buffers
+// sizes para definir o Upgrader
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
