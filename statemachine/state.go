@@ -67,24 +67,22 @@ func init() {
 		createSession,
 		loginSession,
 		createTask,
-		choiceNumber,
-		exitState1 :=
-		State{Name: "Root", Id: 1},
+		choiceNumber :=
+		State{Name: "Start", Id: 1},
 		State{Name: "Set User Name", Id: 2},
 		State{Name: "Set User Email", Id: 3},
 		State{Name: "Create New Session", Id: 4},
 		State{Name: "Login Session", Id: 5},
 		State{Name: "Create New Task", Id: 6},
-		State{Name: "Choice Store Point", Id: 7},
-		State{Name: "Exit", Id: 8}
+		State{Name: "Choice Store Point", Id: 7}
 
-	root.Near = []Transition{{Word: "N", StateTo: &takeUserName}, {Word: "X", StateTo: &exitState1}}
-	takeUserName.Near = []Transition{{Word: "M", StateTo: &takeUserEmail}, {Word: "X", StateTo: &exitState1}}
-	takeUserEmail.Near = []Transition{{Word: "S", StateTo: &createSession}, {Word: "L", StateTo: &loginSession}, {Word: "X", StateTo: &exitState1}}
-	createSession.Near = []Transition{{Word: "T", StateTo: &createTask}, {Word: "X", StateTo: &exitState1}}
-	createTask.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &exitState1}}
-	loginSession.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &exitState1}}
-	choiceNumber.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &exitState1}}
+	root.Near = []Transition{{Word: "N", StateTo: &takeUserName}, {Word: "X", StateTo: &root}}
+	takeUserName.Near = []Transition{{Word: "M", StateTo: &takeUserEmail}, {Word: "X", StateTo: &root}}
+	takeUserEmail.Near = []Transition{{Word: "S", StateTo: &createSession}, {Word: "L", StateTo: &loginSession}, {Word: "X", StateTo: &root}}
+	createSession.Near = []Transition{{Word: "T", StateTo: &createTask}, {Word: "X", StateTo: &root}}
+	createTask.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &root}}
+	loginSession.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &root}}
+	choiceNumber.Near = []Transition{{Word: "P", StateTo: &choiceNumber}, {Word: "X", StateTo: &root}}
 
 	rootState = root
 }
