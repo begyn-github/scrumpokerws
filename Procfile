@@ -1,1 +1,1 @@
-web: bin/lesson1
+web: bin/scrumpokerws
