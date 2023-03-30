@@ -56,12 +56,14 @@ func reader(conn *websocket.Conn, us statemachine.UserState) {
 			return
 		}
 
+		word := string(p)
+
 		// imprime em tela mensagem do usuário
-		fmt.Println("From Client: " + string(p))
+		fmt.Println("From Client: " + word)
 
 		// tenta avançar para o próximo estado
 		// de acordo com escolha no menu
-		state, err2 := us.ActualState.GoTo(string(p))
+		state, err2 := us.ActualState.GoTo(strings.ToUpper(word))
 		if err2 == nil {
 			us.ActualState = &state
 			fmt.Println(strings.Join(state.GetMenu(), "\n"))
