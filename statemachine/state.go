@@ -3,9 +3,10 @@ package statemachine
 import "errors"
 
 type State struct {
-	Name string
-	Id   int
-	Near []Transition
+	Name  string
+	Id    int
+	Field string
+	Near  []Transition
 }
 
 type Transition struct {
@@ -69,12 +70,12 @@ func init() {
 		createTask,
 		choiceNumber :=
 		State{Name: "Start", Id: 1},
-		State{Name: "Set User Name", Id: 2},
-		State{Name: "Set User Email", Id: 3},
-		State{Name: "Create New Session", Id: 4},
-		State{Name: "Login Session", Id: 5},
-		State{Name: "Create New Task", Id: 6},
-		State{Name: "Choice Store Point", Id: 7}
+		State{Name: "Set User Name", Field: "UserName", Id: 2},
+		State{Name: "Set User Email", Field: "UserEmail", Id: 3},
+		State{Name: "Create New Session", Field: "SessionId", Id: 4},
+		State{Name: "Login Session", Field: "SessionId", Id: 5},
+		State{Name: "Create New Task", Field: "TaskName", Id: 6},
+		State{Name: "Choice Store Point", Field: "StorePoint", Id: 7}
 
 	root.Near = []Transition{{Word: "N", StateTo: &takeUserName}, {Word: "X", StateTo: &root}}
 	takeUserName.Near = []Transition{{Word: "M", StateTo: &takeUserEmail}, {Word: "X", StateTo: &root}}

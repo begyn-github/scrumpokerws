@@ -29,7 +29,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	// Recebe o root da state machine
 	// e define o estado inicial do usuário
 	root := statemachine.GetRoot()
-	var userState statemachine.UserState = statemachine.UserState{User: "", ActualState: &root}
+	var userState statemachine.UserState = statemachine.UserState{ActualState: &root}
 
 	// Escreve o menu para o usuário, logo depois de conectado
 	if ws != nil {
@@ -44,30 +44,50 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	reader(ws, userState)
 }
 
+func readOnce(conn *websocket.Conn) (int, string) {
+	messageType, p, err := conn.ReadMessage()
+
+	defer func() {
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+
+	return messageType, string(p)
+}
+
 // leitor de words para avanco na state machine
 func reader(conn *websocket.Conn, us statemachine.UserState) {
 	toExit := false
+	var (
+		messageType int
+		word        string
+	)
 
 	for !toExit {
 		// le entradas do usuário
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		word := string(p)
+		messageType, word = readOnce(conn)
 
 		// imprime em tela mensagem do usuário
 		fmt.Println("From Client: " + word)
 
 		// tenta avançar para o próximo estado
 		// de acordo com escolha no menu
-		state, err2 := us.ActualState.GoTo(strings.ToUpper(word))
-		if err2 == nil {
+		state, err := us.ActualState.GoTo(strings.ToUpper(word))
+		if err == nil {
 			us.ActualState = &state
-			fmt.Println(strings.Join(state.GetMenu(), "\n"))
 		}
+
+		clientMsg := "Set " + us.ActualState.Field + " => "
+
+		if err := conn.WriteMessage(messageType, []byte(clientMsg)); err != nil {
+			log.Println(err)
+			return
+		}
+
+		messageType, word = readOnce(conn)
+
+		us.UpdateDataValue(word)
 
 		// envia o menu do novo estado alcançado ao usuário
 		if err := conn.WriteMessage(messageType, []byte(strings.Join(state.GetMenu(), "\n"))); err != nil {
