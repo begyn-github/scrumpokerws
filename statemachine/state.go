@@ -69,7 +69,7 @@ func init() {
 		loginSession,
 		createTask,
 		choiceNumber :=
-		State{Name: "Start", Id: 1},
+		State{Name: "Start", Field: "", Id: 1},
 		State{Name: "Set User Name", Field: "UserName", Id: 2},
 		State{Name: "Set User Email", Field: "UserEmail", Id: 3},
 		State{Name: "Create New Session", Field: "SessionId", Id: 4},

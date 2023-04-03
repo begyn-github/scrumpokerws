@@ -23,3 +23,10 @@ func (us *UserState) UpdateDataValue(value string) {
 
 	f.SetString(value)
 }
+
+func (us *UserState) GetDataValue() string {
+	r := reflect.ValueOf(us)
+	f := reflect.Indirect(r).FieldByName("Data").FieldByName(us.ActualState.Field)
+
+	return f.String()
+}

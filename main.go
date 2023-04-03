@@ -78,16 +78,20 @@ func reader(conn *websocket.Conn, us statemachine.UserState) {
 			us.ActualState = &state
 		}
 
-		clientMsg := "Set " + us.ActualState.Field + " => "
+		if us.ActualState.Field != "" {
+			clientMsg := "Set " + us.ActualState.Field + " (" + us.GetDataValue() + ") => "
 
-		if err := conn.WriteMessage(messageType, []byte(clientMsg)); err != nil {
-			log.Println(err)
-			return
+			if err := conn.WriteMessage(messageType, []byte(clientMsg)); err != nil {
+				log.Println(err)
+				return
+			}
+
+			messageType, word = readOnce(conn)
+
+			if word != "" {
+				us.UpdateDataValue(word)
+			}
 		}
-
-		messageType, word = readOnce(conn)
-
-		us.UpdateDataValue(word)
 
 		// envia o menu do novo estado alcançado ao usuário
 		if err := conn.WriteMessage(messageType, []byte(strings.Join(state.GetMenu(), "\n"))); err != nil {
